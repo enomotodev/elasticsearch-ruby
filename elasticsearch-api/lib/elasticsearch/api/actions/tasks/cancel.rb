@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Tasks
@@ -32,14 +35,20 @@ module Elasticsearch
         # @option arguments [Boolean] :wait_for_completion Should the request block until the cancellation of the task and its descendant tasks is completed. Defaults to false
         # @option arguments [Hash] :headers Custom HTTP headers
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/tasks.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/tasks.html
         #
         def cancel(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'tasks.cancel' }
+
+          defined_params = [:task_id].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = nil
-
-          arguments = arguments.clone
 
           _task_id = arguments.delete(:task_id)
 
@@ -47,12 +56,12 @@ module Elasticsearch
           path   = if _task_id
                      "_tasks/#{Utils.__listify(_task_id)}/_cancel"
                    else
-                     "_tasks/_cancel"
+                     '_tasks/_cancel'
                    end
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

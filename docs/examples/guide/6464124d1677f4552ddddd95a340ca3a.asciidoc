@@ -30,7 +30,7 @@ response = client.index(
 )
 puts response
 
-response = client.index(
+response = client.search(
   filter_path: 'hits.hits._source',
   _source: 'title',
   sort: 'rating:desc'

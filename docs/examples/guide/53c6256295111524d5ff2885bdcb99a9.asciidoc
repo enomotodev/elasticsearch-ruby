@@ -1,0 +1,9 @@
+[source, ruby]
+----
+response = client.transform.get_transform(
+  transform_id: '_stats',
+  from: 5,
+  size: 10
+)
+puts response
+----

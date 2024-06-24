@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Fleet
@@ -32,13 +35,19 @@ module Elasticsearch
         # @see [TODO]
         #
         def msearch(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'fleet.msearch' }
+
+          defined_params = [:index].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
           raise ArgumentError, "Required argument 'body' missing" unless arguments[:body]
 
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
-          body = arguments.delete(:body)
-
-          arguments = arguments.clone
+          body   = arguments.delete(:body)
 
           _index = arguments.delete(:index)
 
@@ -46,35 +55,33 @@ module Elasticsearch
           path   = if _index
                      "#{Utils.__listify(_index)}/_fleet/_fleet_msearch"
                    else
-                     "_fleet/_fleet_msearch"
+                     '_fleet/_fleet_msearch'
                    end
           params = {}
 
-          case
-          when body.is_a?(Array) && body.any? { |d| d.has_key? :search }
+          if body.is_a?(Array) && body.any? { |d| d.has_key? :search }
             payload = body
-                      .inject([]) do |sum, item|
+                      .each_with_object([]) do |item, sum|
                         meta = item
                         data = meta.delete(:search)
 
                         sum << meta
                         sum << data
-                        sum
                       end
                       .map { |item| Elasticsearch::API.serializer.dump(item) }
-            payload << "" unless payload.empty?
+            payload << '' unless payload.empty?
             payload = payload.join("\n")
-          when body.is_a?(Array)
+          elsif body.is_a?(Array)
             payload = body.map { |d| d.is_a?(String) ? d : Elasticsearch::API.serializer.dump(d) }
-            payload << "" unless payload.empty?
+            payload << '' unless payload.empty?
             payload = payload.join("\n")
           else
             payload = body
           end
 
-          headers.merge!("Content-Type" => "application/x-ndjson")
+          headers.merge!('Content-Type' => 'application/x-ndjson')
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, payload, headers)
+            perform_request(method, path, params, payload, headers, request_opts)
           )
         end
       end

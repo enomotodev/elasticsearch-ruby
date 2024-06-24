@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Cluster
@@ -35,14 +38,20 @@ module Elasticsearch
         # @option arguments [String] :wait_for_status Wait until cluster is in a specific state (options: green, yellow, red)
         # @option arguments [Hash] :headers Custom HTTP headers
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-health.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-health.html
         #
         def health(arguments = {})
-          headers = arguments.delete(:headers) || {}
+          request_opts = { endpoint: arguments[:endpoint] || 'cluster.health' }
 
-          body = nil
+          defined_params = [:index].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
 
           arguments = arguments.clone
+          headers = arguments.delete(:headers) || {}
+
+          body   = nil
 
           _index = arguments.delete(:index)
 
@@ -50,12 +59,12 @@ module Elasticsearch
           path   = if _index
                      "_cluster/health/#{Utils.__listify(_index)}"
                    else
-                     "_cluster/health"
+                     '_cluster/health'
                    end
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

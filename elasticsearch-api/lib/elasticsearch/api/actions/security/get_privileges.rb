@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Security
@@ -28,11 +31,17 @@ module Elasticsearch
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-get-privileges.html
         #
         def get_privileges(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'security.get_privileges' }
+
+          defined_params = %i[application name].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = nil
-
-          arguments = arguments.clone
 
           _application = arguments.delete(:application)
 
@@ -44,12 +53,12 @@ module Elasticsearch
                    elsif _application
                      "_security/privilege/#{Utils.__listify(_application)}"
                    else
-                     "_security/privilege"
+                     '_security/privilege'
                    end
           params = {}
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

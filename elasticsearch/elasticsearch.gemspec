@@ -22,8 +22,8 @@ require 'elasticsearch/version'
 Gem::Specification.new do |s|
   s.name          = 'elasticsearch'
   s.version       = Elasticsearch::VERSION
-  s.authors       = ['Karel Minarik']
-  s.email         = ['karel.minarik@elasticsearch.org']
+  s.authors       = ['Elastic Client Library Maintainers']
+  s.email         = ['client-libs@elastic.co']
   s.summary       = 'Ruby integrations for Elasticsearch'
   s.homepage      = 'https://www.elastic.co/guide/en/elasticsearch/client/ruby-api/current/index.html'
   s.license       = 'Apache-2.0'
@@ -45,11 +45,12 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.5'
 
-  s.add_dependency 'elastic-transport', '8.0.0.pre2'
-  s.add_dependency 'elasticsearch-api', '8.0.0'
+  s.add_dependency 'elastic-transport', '~> 8.3'
+  s.add_dependency 'elasticsearch-api', '8.14.0'
 
+  s.add_development_dependency 'base64'
   s.add_development_dependency 'bundler'
-  s.add_development_dependency 'byebug' unless defined?(JRUBY_VERSION) || defined?(Rubinius)
+  s.add_development_dependency 'debug' unless defined?(JRUBY_VERSION)
   s.add_development_dependency 'pry'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'require-prof' unless defined?(JRUBY_VERSION) || defined?(Rubinius)

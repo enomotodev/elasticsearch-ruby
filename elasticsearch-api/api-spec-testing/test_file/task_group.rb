@@ -15,6 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
+require 'base64'
+
 module Elasticsearch
   module RestAPIYAMLTests
     class TestFile
@@ -102,7 +104,7 @@ module Elasticsearch
           def response
             @response ||= begin
               if do_actions.any? { |a| a.yaml_response? }
-                YAML.load(do_actions[-1].response)
+                YAML.load(do_actions[-1].response.body)
               else
                 do_actions[-1].response
               end
@@ -282,6 +284,7 @@ module Elasticsearch
           ACTIONS = (Test::GROUP_TERMINATORS + ['do']).freeze
 
           def do_actions
+            return [] if @actions.empty?
             @do_actions ||= @actions.group_by { |a| a.keys.first }['do'].map { |definition| Action.new(definition['do']) }
           end
 
@@ -315,7 +318,10 @@ module Elasticsearch
               set_definition['set'].each do |response_key, variable_name|
                 nested_key_chain = response_key.split('.').map do |key|
                   # If there's a variable in the set key, get the value:
-                  key.gsub!(key, @test.cached_values[key.gsub('$', '')]) if key.match?(/\$.+/)
+                  if key.match?(/\$.+/)
+                    value = @test.cached_values[key.gsub('$', '')]
+                    key.gsub!(key, value) if value
+                  end
 
                   (key =~ /\A[-+]?[0-9]+\z/) ? key.to_i: key
                 end

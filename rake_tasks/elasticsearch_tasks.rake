@@ -15,8 +15,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-ELASTICSEARCH_PATH = "#{CURRENT_PATH}/tmp/elasticsearch".freeze
-
 namespace :elasticsearch do
   desc 'Wait for elasticsearch cluster to be in green state'
   task :wait_for_green do
@@ -43,53 +41,34 @@ namespace :elasticsearch do
     end
   end
 
-  def package_url(filename, build_hash)
-    begin
-      artifacts = JSON.parse(File.read(filename))
-    rescue StandardError => e
-      STDERR.puts "[!] Couldn't read JSON file #{filename}"
-      exit 1
-    end
-
-    build_hash_artifact = artifacts['version']['builds'].select do |build|
-      build.dig('projects', 'elasticsearch', 'commit_hash') == build_hash
-    end.first
-
-    unless build_hash_artifact
-      STDERR.puts "[!] Could not find artifact with build hash #{build_hash}, using latest instead"
-      build_hash_artifact = artifacts['version']['builds'].first
-    end
-
-    # Dig into the elasticsearch packages, search for the rest-resources-zip package and return the URL:
-    build_hash_artifact.dig('projects', 'elasticsearch', 'packages').select { |k,v| k =~ /rest-resources-zip/ }.map { | _, v| v['url'] }.first
-  end
-
   def download_file!(url, filename)
     puts "Downloading #{filename} from #{url}"
-    File.open(filename, "w") do |downloaded_file|
-      URI.open(url, "rb") do |artifact_file|
+    File.open(filename, 'w') do |downloaded_file|
+      URI.open(url, 'rb') do |artifact_file|
         downloaded_file.write(artifact_file.read)
       end
     end
     puts "Successfully downloaded #{filename}"
 
-    unless File.exists?(filename)
-      STDERR.puts "[!] Couldn't download #{filename}"
+    unless File.exist?(filename)
+      warn "[!] Couldn't download #{filename}"
       exit 1
     end
+  rescue OpenURI::HTTPError => e
+    abort e.message
   rescue StandardError => e
-    abort e
+    puts e.backtrace.join("\n\t")
+    abort e.message
   end
 
   desc 'Download artifacts (tests and REST spec) for currently running cluster'
-  task :download_artifacts do
+  task :download_artifacts, :version do |_, args|
     json_filename = CURRENT_PATH.join('tmp/artifacts.json')
 
-    unless (version_number = ENV['STACK_VERSION'])
+    unless (version_number = args[:version] || ENV['STACK_VERSION'])
       # Get version number and build hash of running cluster:
       version_number = cluster_info['number']
-      build_hash = cluster_info['build_hash']
-      puts "Build hash: #{build_hash}"
+      @build_hash = cluster_info['build_hash'] if cluster_info['build_hash']
     end
 
     # Create ./tmp if it doesn't exist
@@ -99,8 +78,23 @@ namespace :elasticsearch do
     json_url = "https://artifacts-api.elastic.co/v1/versions/#{version_number}"
     download_file!(json_url, json_filename)
 
-    # Get the package url from the json file given the build hash
-    zip_url = package_url(json_filename, build_hash)
+    # Parse the downloaded JSON
+    begin
+      artifacts = JSON.parse(File.read(json_filename))
+    rescue StandardError => e
+      STDERR.puts "[!] Couldn't read JSON file #{json_filename}"
+      exit 1
+    end
+
+    # Either find the artifacts for the exact same build hash from the current running cluster or
+    # use the first one from the list of builds:
+    build_hash_artifact = artifacts['version']['builds'].find do |build|
+      build.dig('projects', 'elasticsearch', 'commit_hash') == @build_hash
+    end || artifacts['version']['builds'].first
+    zip_url = build_hash_artifact.dig('projects', 'elasticsearch', 'packages').select { |k, _| k =~ /rest-resources-zip/ }.map { |_, v| v['url'] }.first
+
+    # Dig into the elasticsearch packages, search for the rest-resources-zip package and return the URL:
+    build_hash_artifact.dig('projects', 'elasticsearch', 'packages').select { |k, _| k =~ /rest-resources-zip/ }.map { |_, v| v['url'] }.first
 
     # Download the zip file
     filename = CURRENT_PATH.join("tmp/#{zip_url.split('/').last}")
@@ -112,6 +106,17 @@ namespace :elasticsearch do
     puts "Unzipping file #{filename}"
     `unzip -o #{filename} -d tmp/`
     `rm #{filename}`
-    puts 'Artifacts downloaded in ./tmp'
+    puts "Artifacts downloaded in ./tmp, build hash #{@build_hash}"
+    File.write(CURRENT_PATH.join('tmp/rest-api-spec/build_hash'), @build_hash)
+  end
+
+  desc 'Check Elasticsearch health'
+  task :health do
+    require 'elasticsearch'
+
+    puts "ELASTICSEARCH_HOST: #{ENV['ELASTICSEARCH_HOST']}"
+
+    client = Elasticsearch::Client.new(hosts: [ENV['ELASTICSEARCH_HOST']])
+    puts client.cluster.health
   end
 end

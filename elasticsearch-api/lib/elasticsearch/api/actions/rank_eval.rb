@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Actions
@@ -28,16 +31,22 @@ module Elasticsearch
       # @option arguments [Hash] :headers Custom HTTP headers
       # @option arguments [Hash] :body The ranking evaluation search definition, including search requests, document ratings and ranking metric definition. (*Required*)
       #
-      # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/search-rank-eval.html
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-rank-eval.html
       #
       def rank_eval(arguments = {})
+        request_opts = { endpoint: arguments[:endpoint] || 'rank_eval' }
+
+        defined_params = [:index].each_with_object({}) do |variable, set_variables|
+          set_variables[variable] = arguments[variable] if arguments.key?(variable)
+        end
+        request_opts[:defined_params] = defined_params unless defined_params.empty?
+
         raise ArgumentError, "Required argument 'body' missing" unless arguments[:body]
 
+        arguments = arguments.clone
         headers = arguments.delete(:headers) || {}
 
-        body = arguments.delete(:body)
-
-        arguments = arguments.clone
+        body   = arguments.delete(:body)
 
         _index = arguments.delete(:index)
 
@@ -45,12 +54,12 @@ module Elasticsearch
         path   = if _index
                    "#{Utils.__listify(_index)}/_rank_eval"
                  else
-                   "_rank_eval"
+                   '_rank_eval'
                  end
         params = Utils.process_params(arguments)
 
         Elasticsearch::API::Response.new(
-          perform_request(method, path, params, body, headers)
+          perform_request(method, path, params, body, headers, request_opts)
         )
       end
     end

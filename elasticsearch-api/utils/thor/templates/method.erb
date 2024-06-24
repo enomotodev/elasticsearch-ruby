@@ -14,31 +14,42 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
 module Elasticsearch
-<%= '  '*(@namespace_depth) %>module API
-<%- @module_namespace.each_with_index do |name, i| -%>
+module API
+<%- @spec.module_namespace.each_with_index do |name, i| -%>
   <%= '  '*i %>module <%= module_name_helper(name) %>
 <%- end -%>
-<%= '  '*(@namespace_depth+2) %>module Actions
+module Actions
 <%= ERB.new(File.new("./thor/templates/_documentation_top.erb").read, trim_mode: '-').result(binding) -%>
 <%# Method definition -%>
-<%= '  '*(@namespace_depth+3) -%>def <%= @method_name %>(arguments = {})
-<%- if @endpoint_name == 'create' -%>
-  <%= '  '*(@namespace_depth+3) %>if arguments[:id]
-  <%= '  '*(@namespace_depth+3) %>  index arguments.update op_type: 'create'
-  <%= '  '*(@namespace_depth+3) %>else
-  <%= '  '*(@namespace_depth+3) %>  index arguments
-  <%= '  '*(@namespace_depth+3) %>end
-  <%= '  '*(@namespace_depth+2) %>end
+def <%= @spec.method_name %>(arguments = {})
+  request_opts = { endpoint: arguments[:endpoint] || "<%= @spec.endpoint_name %>" }
+<%- unless @spec.path_params.empty? %>
+  defined_params =<%=  @spec.path_params %>.inject({}) do |set_variables, variable|
+    set_variables[variable] = arguments[variable] if arguments.key?(variable)
+    set_variables
+  end
+  request_opts[:defined_params] = defined_params unless defined_params.empty?
+<%- end %>
+<%-    %>
+<%- if @spec.endpoint_name == 'create' -%>
+if arguments[:id]
+  index arguments.update op_type: 'create'
+else
+  index arguments
+end
+end
 <%- else -%>
-  <%- if @method_name == 'get_field_mapping' %>
+  <%- if @spec.method_name == 'get_field_mapping' %>
+    arguments = arguments.clone
     _fields = arguments.delete(:field) || arguments.delete(:fields)
     raise ArgumentError, "Required argument 'field' missing" unless _fields
   <%- else -%>
-    <%- @required_parts.each do |required| %><%# Arguments -%>
-      <%= '  '*(@namespace_depth+3) + "raise ArgumentError, \"Required argument '#{required}' missing\" unless arguments[:#{required}]" + "\n" -%>
+    <%- @spec.required_parts.each do |required| %><%# Arguments -%>
+      <%= "raise ArgumentError, \"Required argument '#{required}' missing\" unless arguments[:#{required}]" + "\n" -%>
     <%- end -%>
+    arguments = arguments.clone
     <%- end -%>
     headers = arguments.delete(:headers) || {}
     <%- #Body %>
@@ -48,21 +59,21 @@ module Elasticsearch
     <%- # Perform request -%>
     <%= ERB.new(File.new("./thor/templates/_perform_request.erb").read, trim_mode: '-').result(binding) %>
 <%- end -%>
-<%- if @method_name.match?(/^exists\S*/) -%>
-  alias_method :<%= @method_name %>?, :<%= @method_name %>
+<%- if @spec.method_name.match?(/^exists\S*/) -%>
+  alias_method :<%= @spec.method_name %>?, :<%= @spec.method_name %>
 <%- end -%>
-<%- if @method_name == 'termvectors' %>
-
+<%- if @spec.method_name == 'termvectors' %>
   # Deprecated: Use the plural version, {#termvectors}
   #
   def termvector(arguments={})
-    termvectors(arguments.merge endpoint: '_termvector')
+    warn "[DEPRECATION] `termvector` is deprecated. Please use the plural version, `termvectors` instead."
+    termvectors(arguments.merge(endpoint: '_termvector'))
   end
 <%- end -%>
+<%- @spec.namespace_depth.downto(1) do |i| -%>
+  <%= '  '*(i-1) %>end
+<%- end if @spec.namespace_depth > 0 -%>
 
-<%- @namespace_depth.downto(1) do |i| -%>
-<%= '  '*(i-1) %>end
-<%- end if @namespace_depth > 0 -%>
     end
   end
 end

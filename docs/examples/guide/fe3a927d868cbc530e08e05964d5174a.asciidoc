@@ -14,7 +14,7 @@ response = client.index(
 )
 puts response
 
-response = client.index(
+response = client.search(
   body: {
     query: {
       term: {

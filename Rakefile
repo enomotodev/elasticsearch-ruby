@@ -58,8 +58,8 @@ require 'pathname'
 CURRENT_PATH = Pathname(File.expand_path(__dir__))
 SUBPROJECTS = [
   'elasticsearch',
-  'elasticsearch-dsl',
-  'elasticsearch-api'
+  'elasticsearch-api',
+  'elasticsearch-api/utils'
 ].freeze
 
 RELEASE_TOGETHER = [
@@ -70,7 +70,7 @@ RELEASE_TOGETHER = [
 CERT_DIR = ENV['CERT_DIR'] || '.ci/certs'
 
 # Import build task after setting constants:
-import 'rake_tasks/unified_release_tasks.rake'
+import 'rake_tasks/automation.rake'
 
 # TODO: Figure out "bundle exec or not"
 # subprojects.each { |project| $LOAD_PATH.unshift CURRENT_PATH.join(project, "lib").to_s }

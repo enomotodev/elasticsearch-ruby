@@ -14,24 +14,31 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Security
       module Actions
         # Retrieves information for API keys using a subset of query DSL
         #
+        # @option arguments [Boolean] :with_limited_by flag to show the limited-by role descriptors of API Keys
+        # @option arguments [Boolean] :with_profile_uid flag to also retrieve the API Key's owner profile uid, if it exists
+        # @option arguments [Boolean] :typed_keys flag to prefix aggregation names by their respective types in the response
         # @option arguments [Hash] :headers Custom HTTP headers
         # @option arguments [Hash] :body From, size, query, sort and search_after
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-query-api-key.html
         #
         def query_api_keys(arguments = {})
-          headers = arguments.delete(:headers) || {}
-
-          body = arguments.delete(:body)
+          request_opts = { endpoint: arguments[:endpoint] || 'security.query_api_keys' }
 
           arguments = arguments.clone
+          headers = arguments.delete(:headers) || {}
+
+          body   = arguments.delete(:body)
 
           method = if body
                      Elasticsearch::API::HTTP_POST
@@ -39,11 +46,11 @@ module Elasticsearch
                      Elasticsearch::API::HTTP_GET
                    end
 
-          path   = "_security/_query/api_key"
-          params = {}
+          path = '_security/_query/api_key'
+          params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

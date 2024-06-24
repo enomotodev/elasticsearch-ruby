@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Cluster
@@ -27,21 +30,22 @@ module Elasticsearch
         # @option arguments [Boolean] :include_defaults Whether to return all default clusters setting.
         # @option arguments [Hash] :headers Custom HTTP headers
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-get-settings.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-get-settings.html
         #
         def get_settings(arguments = {})
-          headers = arguments.delete(:headers) || {}
-
-          body = nil
+          request_opts = { endpoint: arguments[:endpoint] || 'cluster.get_settings' }
 
           arguments = arguments.clone
+          headers = arguments.delete(:headers) || {}
+
+          body   = nil
 
           method = Elasticsearch::API::HTTP_GET
-          path   = "_cluster/settings"
+          path   = '_cluster/settings'
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

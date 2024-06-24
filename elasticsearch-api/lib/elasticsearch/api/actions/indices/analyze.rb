@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Indices
@@ -25,14 +28,20 @@ module Elasticsearch
         # @option arguments [Hash] :headers Custom HTTP headers
         # @option arguments [Hash] :body Define analyzer/tokenizer parameters and the text on which the analysis should be performed
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-analyze.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-analyze.html
         #
         def analyze(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'indices.analyze' }
+
+          defined_params = [:index].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = arguments.delete(:body)
-
-          arguments = arguments.clone
 
           _index = arguments.delete(:index)
 
@@ -42,15 +51,15 @@ module Elasticsearch
                      Elasticsearch::API::HTTP_GET
                    end
 
-          path   = if _index
-                     "#{Utils.__listify(_index)}/_analyze"
-                   else
-                     "_analyze"
-                   end
+          path = if _index
+                   "#{Utils.__listify(_index)}/_analyze"
+                 else
+                   '_analyze'
+                 end
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

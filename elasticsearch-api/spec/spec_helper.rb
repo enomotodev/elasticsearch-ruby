@@ -22,7 +22,7 @@ end
 if defined?(JRUBY_VERSION)
   require 'pry-nav'
 else
-  require 'pry-byebug'
+  require 'debug'
 end
 require 'yaml'
 require 'active_support/isolated_execution_state' unless RUBY_VERSION < '2.7.0'
@@ -59,10 +59,14 @@ end
 RSpec.configure do |config|
   config.include(HelperModule)
   config.add_formatter('documentation')
-  if ENV['TEST_SUITE'] == 'platinum'
-    config.add_formatter('RspecJunitFormatter', 'tmp/elasticsearch-platinum-junit.xml')
+  if defined?(JRUBY_VERSION)
+    config.add_formatter('RSpec::Core::Formatters::HtmlFormatter', "tmp/elasticsearch-#{ENV['TEST_SUITE']}-jruby-#{JRUBY_VERSION}.html")
   else
-    config.add_formatter('RspecJunitFormatter', 'tmp/elasticsearch-api-junit.xml')
+    config.add_formatter('RSpec::Core::Formatters::HtmlFormatter', "tmp/elasticsearch-#{ENV['TEST_SUITE']}-#{RUBY_VERSION}.html")
+  end
+  if ENV['BUILDKITE']
+    require_relative "./rspec_formatter.rb"
+    config.add_formatter('RSpecCustomFormatter')
   end
   config.color_mode = :on
 end

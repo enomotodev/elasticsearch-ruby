@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Watcher
@@ -27,11 +30,12 @@ module Elasticsearch
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-query-watches.html
         #
         def query_watches(arguments = {})
-          headers = arguments.delete(:headers) || {}
-
-          body = arguments.delete(:body)
+          request_opts = { endpoint: arguments[:endpoint] || 'watcher.query_watches' }
 
           arguments = arguments.clone
+          headers = arguments.delete(:headers) || {}
+
+          body   = arguments.delete(:body)
 
           method = if body
                      Elasticsearch::API::HTTP_POST
@@ -39,11 +43,11 @@ module Elasticsearch
                      Elasticsearch::API::HTTP_GET
                    end
 
-          path   = "_watcher/_query/watches"
+          path = '_watcher/_query/watches'
           params = {}
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Nodes
@@ -26,14 +29,20 @@ module Elasticsearch
         # @option arguments [Hash] :headers Custom HTTP headers
         # @option arguments [Hash] :body An object containing the password for the elasticsearch keystore
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/secure-settings.html#reloadable-secure-settings
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/secure-settings.html#reloadable-secure-settings
         #
         def reload_secure_settings(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'nodes.reload_secure_settings' }
+
+          defined_params = [:node_id].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = arguments.delete(:body)
-
-          arguments = arguments.clone
 
           _node_id = arguments.delete(:node_id)
 
@@ -41,12 +50,12 @@ module Elasticsearch
           path   = if _node_id
                      "_nodes/#{Utils.__listify(_node_id)}/reload_secure_settings"
                    else
-                     "_nodes/reload_secure_settings"
+                     '_nodes/reload_secure_settings'
                    end
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

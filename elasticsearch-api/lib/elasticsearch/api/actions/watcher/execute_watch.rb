@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Watcher
@@ -29,11 +32,17 @@ module Elasticsearch
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/watcher-api-execute-watch.html
         #
         def execute_watch(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'watcher.execute_watch' }
+
+          defined_params = [:id].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = arguments.delete(:body)
-
-          arguments = arguments.clone
 
           _id = arguments.delete(:id)
 
@@ -41,12 +50,12 @@ module Elasticsearch
           path   = if _id
                      "_watcher/watch/#{Utils.__listify(_id)}/_execute"
                    else
-                     "_watcher/watch/_execute"
+                     '_watcher/watch/_execute'
                    end
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

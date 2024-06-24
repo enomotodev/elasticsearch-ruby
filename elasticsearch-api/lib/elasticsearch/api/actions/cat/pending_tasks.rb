@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Cat
@@ -31,22 +34,23 @@ module Elasticsearch
         # @option arguments [Boolean] :v Verbose mode. Display column headers
         # @option arguments [Hash] :headers Custom HTTP headers
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/cat-pending-tasks.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-pending-tasks.html
         #
         def pending_tasks(arguments = {})
-          headers = arguments.delete(:headers) || {}
-
-          body = nil
+          request_opts = { endpoint: arguments[:endpoint] || 'cat.pending_tasks' }
 
           arguments = arguments.clone
+          headers = arguments.delete(:headers) || {}
+
+          body   = nil
 
           method = Elasticsearch::API::HTTP_GET
-          path   = "_cat/pending_tasks"
+          path   = '_cat/pending_tasks'
           params = Utils.process_params(arguments)
           params[:h] = Utils.__listify(params[:h]) if params[:h]
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

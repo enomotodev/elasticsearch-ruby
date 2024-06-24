@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Actions
@@ -25,24 +28,23 @@ module Elasticsearch
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html
       #
       def ping(arguments = {})
-        headers = arguments.delete(:headers) || {}
-
-        body = nil
+        request_opts = { endpoint: arguments[:endpoint] || 'ping' }
 
         arguments = arguments.clone
+        headers = arguments.delete(:headers) || {}
+
+        body   = nil
 
         method = Elasticsearch::API::HTTP_HEAD
-        path   = ""
+        path   = ''
         params = {}
 
         begin
-          perform_request(method, path, params, body, headers).status == 200 ? true : false
+          perform_request(method, path, params, body, headers, request_opts).status == 200
         rescue Exception => e
-          if e.class.to_s =~ /NotFound|ConnectionFailed/ || e.message =~ /Not *Found|404|ConnectionFailed/i
-            false
-          else
-            raise e
-          end
+          raise e unless e.class.to_s =~ /NotFound|ConnectionFailed/ || e.message =~ /Not *Found|404|ConnectionFailed/i
+
+          false
         end
       end
     end

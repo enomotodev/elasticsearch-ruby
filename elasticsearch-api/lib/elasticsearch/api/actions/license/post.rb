@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module License
@@ -22,24 +25,27 @@ module Elasticsearch
         # Updates the license for the cluster.
         #
         # @option arguments [Boolean] :acknowledge whether the user has acknowledged acknowledge messages (default: false)
+        # @option arguments [Time] :master_timeout Timeout for processing on master node
+        # @option arguments [Time] :timeout Timeout for acknowledgement of update from all nodes in cluster
         # @option arguments [Hash] :headers Custom HTTP headers
         # @option arguments [Hash] :body licenses to be installed
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/update-license.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/update-license.html
         #
         def post(arguments = {})
-          headers = arguments.delete(:headers) || {}
-
-          body = arguments.delete(:body)
+          request_opts = { endpoint: arguments[:endpoint] || 'license.post' }
 
           arguments = arguments.clone
+          headers = arguments.delete(:headers) || {}
+
+          body   = arguments.delete(:body)
 
           method = Elasticsearch::API::HTTP_PUT
-          path   = "_license"
+          path   = '_license'
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

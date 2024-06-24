@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Cat
@@ -35,11 +38,17 @@ module Elasticsearch
         # @see http://www.elastic.co/guide/en/elasticsearch/reference/current/cat-anomaly-detectors.html
         #
         def ml_jobs(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'cat.ml_jobs' }
+
+          defined_params = [:job_id].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = nil
-
-          arguments = arguments.clone
 
           _job_id = arguments.delete(:job_id)
 
@@ -47,12 +56,12 @@ module Elasticsearch
           path   = if _job_id
                      "_cat/ml/anomaly_detectors/#{Utils.__listify(_job_id)}"
                    else
-                     "_cat/ml/anomaly_detectors"
+                     '_cat/ml/anomaly_detectors'
                    end
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

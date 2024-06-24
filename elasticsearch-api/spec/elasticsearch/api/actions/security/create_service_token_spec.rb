@@ -18,14 +18,43 @@
 require 'spec_helper'
 
 describe 'client#security#create_service_token' do
+  let(:expected_path) { '_security/service/foo/bar/credential/token' }
+  let(:expected_request_method) { 'POST' }
   let(:expected_args) do
     [
-      'PUT',
-      '_security/service/foo/bar/credential/token',
+      expected_request_method,
+      expected_path,
       {},
       nil,
-      {}
+      {},
+      { defined_params: { namespace: 'foo', service: 'bar' },
+        endpoint: 'security.create_service_token' }
     ]
+  end
+
+  context 'with token name' do
+    let(:expected_request_method) { 'PUT' }
+    let(:token_name) { 'test-token' }
+    let(:expected_path) { "#{super()}/#{token_name}" }
+    let(:expected_args) do
+      [
+        expected_request_method,
+        expected_path,
+        {},
+        nil,
+        {},
+        { defined_params: { name: 'test-token', namespace: 'foo', service: 'bar' },
+          endpoint: 'security.create_service_token' }
+      ]
+    end
+
+    it 'performs the request' do
+      expect(
+        client_double.security.create_service_token(
+          namespace: 'foo', service: 'bar', name: token_name
+        )
+      ).to be_a Elasticsearch::API::Response
+    end
   end
 
   it 'performs the request' do

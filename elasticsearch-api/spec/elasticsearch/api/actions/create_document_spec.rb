@@ -25,7 +25,8 @@ describe 'client#create_document' do
         'foo/_doc/123',
         { op_type: 'create' },
         { foo: 'bar' },
-        {}
+        {},
+        { defined_params: { id: '123', index: 'foo' }, endpoint: 'index' }
     ]
   end
 
@@ -42,6 +43,17 @@ describe 'client#create_document' do
           { op_type: 'create' },
           {},
           {}
+      ]
+    end
+
+    let(:expected_args) do
+      [
+        'PUT',
+        'foo/_doc/123',
+        { op_type: 'create' },
+        {},
+        {},
+        { defined_params: { id: '123', index: 'foo' }, endpoint: 'index' }
       ]
     end
 
@@ -62,6 +74,17 @@ describe 'client#create_document' do
       ]
     end
 
+    let(:expected_args) do
+      [
+        'PUT',
+        'foo/_doc/1',
+        { op_type: 'create' },
+        { foo: 'bar' },
+        {},
+        { defined_params: { id: 1, index: 'foo' }, endpoint: 'index' }
+      ]
+    end
+
     it 'updates the arguments with the `op_type`' do
       expect(client_double.create(index: 'foo', id: 1, body: { foo: 'bar' })).to be_a Elasticsearch::API::Response
     end
@@ -76,6 +99,17 @@ describe 'client#create_document' do
           { },
           { foo: 'bar' },
           {}
+      ]
+    end
+
+    let(:expected_args) do
+      [
+        'POST',
+        'foo/_doc',
+        { },
+        { foo: 'bar' },
+        {},
+        { defined_params: { index: 'foo' }, endpoint: 'index' }
       ]
     end
 

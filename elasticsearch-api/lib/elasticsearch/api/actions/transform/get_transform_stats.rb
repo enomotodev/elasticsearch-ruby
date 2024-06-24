@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Transform
@@ -24,19 +27,26 @@ module Elasticsearch
         # @option arguments [String] :transform_id The id of the transform for which to get stats. '_all' or '*' implies all transforms
         # @option arguments [Number] :from skips a number of transform stats, defaults to 0
         # @option arguments [Number] :size specifies a max number of transform stats to get, defaults to 100
+        # @option arguments [Time] :timeout Controls the time to wait for the stats
         # @option arguments [Boolean] :allow_no_match Whether to ignore if a wildcard expression matches no transforms. (This includes `_all` string or when no transforms have been specified)
         # @option arguments [Hash] :headers Custom HTTP headers
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/get-transform-stats.html
         #
         def get_transform_stats(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'transform.get_transform_stats' }
+
+          defined_params = [:transform_id].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
           raise ArgumentError, "Required argument 'transform_id' missing" unless arguments[:transform_id]
 
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = nil
-
-          arguments = arguments.clone
 
           _transform_id = arguments.delete(:transform_id)
 
@@ -45,7 +55,7 @@ module Elasticsearch
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

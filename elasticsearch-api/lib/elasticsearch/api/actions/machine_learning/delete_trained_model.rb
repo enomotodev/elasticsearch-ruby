@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module MachineLearning
@@ -23,18 +26,25 @@ module Elasticsearch
         #
         # @option arguments [String] :model_id The ID of the trained model to delete
         # @option arguments [Time] :timeout Controls the amount of time to wait for the model to be deleted.
+        # @option arguments [Boolean] :force True if the model should be forcefully deleted
         # @option arguments [Hash] :headers Custom HTTP headers
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/delete-trained-models.html
         #
         def delete_trained_model(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'ml.delete_trained_model' }
+
+          defined_params = [:model_id].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
           raise ArgumentError, "Required argument 'model_id' missing" unless arguments[:model_id]
 
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = nil
-
-          arguments = arguments.clone
 
           _model_id = arguments.delete(:model_id)
 
@@ -43,7 +53,7 @@ module Elasticsearch
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

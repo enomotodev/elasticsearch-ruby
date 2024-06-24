@@ -58,10 +58,10 @@ module Elasticsearch
           #
           # @since 6.2.0
           def split_and_parse_key(key)
-            key.split(/(?<!\\)\./).reject { |k| k.empty? }.map do |key_part|
+            key.split(/(?<!\\)\./).reject(&:empty?).map do |key_part|
               case key_part
-               when /^\.\$/ # For keys in the form of .$key
-                 key_part.gsub(/^\./, '')
+              when /^\.\$/ # For keys in the form of .$key
+                key_part.gsub(/^\./, '')
               when /\A[-+]?[0-9]+\z/
                 key_part.to_i
               else
@@ -71,7 +71,7 @@ module Elasticsearch
           end
         end
 
-        attr_reader :description, :test_file, :cached_values, :file_basename
+        attr_reader :description, :test_file, :cached_values, :file_basename, :skip
 
         # Actions that if followed by a 'do' action, indicate that they complete their task group.
         # For example, consider this sequence of actions:
@@ -182,6 +182,7 @@ module Elasticsearch
             key =~ /^\$/ ? @cached_values.fetch(key.gsub(/[\$\{\}]/, ''), key) : key
           when Hash
             key.inject({}) do |hash, (k, v)|
+              k = k.to_s if [Float, Integer].include? k.class
               if v.is_a?(String)
                 hash.merge(@cached_values.fetch(k.gsub(/[\$\{\}]/, ''), k) => @cached_values.fetch(v.gsub(/[\$\{\}]/, ''), v))
               else
@@ -256,7 +257,7 @@ module Elasticsearch
         end
 
         def pre_defined_skip?
-          SKIPPED_TESTS.find do |t|
+          SKIPPED_TESTS.compact.find do |t|
             file_basename == t[:file] && (description == t[:description] || t[:description] == '*')
           end
         end

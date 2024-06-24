@@ -14,30 +14,35 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Enrich
       module Actions
         # Gets enrich coordinator statistics and information about enrich policies that are currently executing.
         #
+        # @option arguments [Time] :master_timeout Timeout for processing on master node
         # @option arguments [Hash] :headers Custom HTTP headers
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/enrich-stats-api.html
         #
         def stats(arguments = {})
-          headers = arguments.delete(:headers) || {}
-
-          body = nil
+          request_opts = { endpoint: arguments[:endpoint] || 'enrich.stats' }
 
           arguments = arguments.clone
+          headers = arguments.delete(:headers) || {}
+
+          body   = nil
 
           method = Elasticsearch::API::HTTP_GET
-          path   = "_enrich/_stats"
-          params = {}
+          path   = '_enrich/_stats'
+          params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

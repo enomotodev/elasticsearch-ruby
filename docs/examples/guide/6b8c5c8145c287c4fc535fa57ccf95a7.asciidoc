@@ -1,0 +1,7 @@
+[source, ruby]
+----
+response = client.connector.sync_job_list(
+  status: 'pending'
+)
+puts response
+----

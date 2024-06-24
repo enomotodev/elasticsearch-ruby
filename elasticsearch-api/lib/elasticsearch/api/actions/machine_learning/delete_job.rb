@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module MachineLearning
@@ -24,18 +27,25 @@ module Elasticsearch
         # @option arguments [String] :job_id The ID of the job to delete
         # @option arguments [Boolean] :force True if the job should be forcefully deleted
         # @option arguments [Boolean] :wait_for_completion Should this request wait until the operation has completed before returning
+        # @option arguments [Boolean] :delete_user_annotations Should annotations added by the user be deleted
         # @option arguments [Hash] :headers Custom HTTP headers
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/ml-delete-job.html
         #
         def delete_job(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'ml.delete_job' }
+
+          defined_params = [:job_id].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
           raise ArgumentError, "Required argument 'job_id' missing" unless arguments[:job_id]
 
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = nil
-
-          arguments = arguments.clone
 
           _job_id = arguments.delete(:job_id)
 
@@ -44,7 +54,7 @@ module Elasticsearch
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

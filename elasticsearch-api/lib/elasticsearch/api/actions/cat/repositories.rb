@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Cat
@@ -30,21 +33,22 @@ module Elasticsearch
         # @option arguments [Boolean] :v Verbose mode. Display column headers
         # @option arguments [Hash] :headers Custom HTTP headers
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/cat-repositories.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-repositories.html
         #
         def repositories(arguments = {})
-          headers = arguments.delete(:headers) || {}
-
-          body = nil
+          request_opts = { endpoint: arguments[:endpoint] || 'cat.repositories' }
 
           arguments = arguments.clone
+          headers = arguments.delete(:headers) || {}
+
+          body   = nil
 
           method = Elasticsearch::API::HTTP_GET
-          path   = "_cat/repositories"
+          path   = '_cat/repositories'
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Indices
@@ -28,19 +31,27 @@ module Elasticsearch
         # @option arguments [Boolean] :dry_run If set to true the rollover action will only be validated but not actually performed even if a condition matches. The default is false
         # @option arguments [Time] :master_timeout Specify timeout for connection to master
         # @option arguments [String] :wait_for_active_shards Set the number of active shards to wait for on the newly created rollover index before the operation returns.
+        # @option arguments [Boolean] :lazy If set to true, the rollover action will only mark a data stream to signal that it needs to be rolled over at the next write. Only allowed on data streams.
+        # @option arguments [Boolean] :target_failure_store If set to true, the rollover action will be applied on the failure store of the data stream.
         # @option arguments [Hash] :headers Custom HTTP headers
         # @option arguments [Hash] :body The conditions that needs to be met for executing rollover
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-rollover-index.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-rollover-index.html
         #
         def rollover(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'indices.rollover' }
+
+          defined_params = %i[alias new_index].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
           raise ArgumentError, "Required argument 'alias' missing" unless arguments[:alias]
 
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
-          body = arguments.delete(:body)
-
-          arguments = arguments.clone
+          body   = arguments.delete(:body)
 
           _alias = arguments.delete(:alias)
 
@@ -55,7 +66,7 @@ module Elasticsearch
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

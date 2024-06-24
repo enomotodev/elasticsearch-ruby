@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Nodes
@@ -31,14 +34,20 @@ module Elasticsearch
         # @option arguments [Time] :timeout Explicit operation timeout
         # @option arguments [Hash] :headers Custom HTTP headers
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-nodes-hot-threads.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-hot-threads.html
         #
         def hot_threads(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'nodes.hot_threads' }
+
+          defined_params = [:node_id].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = nil
-
-          arguments = arguments.clone
 
           _node_id = arguments.delete(:node_id)
 
@@ -46,12 +55,12 @@ module Elasticsearch
           path   = if _node_id
                      "_nodes/#{Utils.__listify(_node_id)}/hot_threads"
                    else
-                     "_nodes/hot_threads"
+                     '_nodes/hot_threads'
                    end
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

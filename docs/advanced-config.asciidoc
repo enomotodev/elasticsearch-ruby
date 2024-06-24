@@ -32,7 +32,7 @@ Instead of strings, you can pass host information as an array of Hashes:
 Elasticsearch::Client.new(hosts: [ { host: 'myhost1', port: 8080 }, { host: 'myhost2', port: 8080 } ])
 ```
 
-NOTE: When specifying multiple hosts, you probably want to enable the 
+NOTE: When specifying multiple hosts, you might want to enable the
 `retry_on_failure` or `retry_on_status` options to perform a failed request on 
 another node (refer to <<retry-failures>>).
 
@@ -81,13 +81,7 @@ Elasticsearch::Client.new(log: true)
 You can also use https://github.com/elastic/ecs-logging-ruby[`ecs-logging`] 
 which is a set of libraries that enables you to transform your application logs 
 to structured logs that comply with the 
-https://www.elastic.co/guide/en/ecs/current/ecs-reference.html[Elastic Common Schema (ECS)]:
-
-[source,ruby]
-------------------------------------
-logger = EcsLogging::Logger.new($stdout)
-Elasticsearch::Client.new(logger: logger)
-------------------------------------
+https://www.elastic.co/guide/en/ecs/current/ecs-reference.html[Elastic Common Schema]. See <<ecs>>.
 
 To trace requests and responses in the Curl format, set the `trace` argument:
 
@@ -132,7 +126,7 @@ automatically captures client requests if you are using the agent on your code.
 If you're using `elastic-apm` v3.8.0 or up, you can set 
 `capture_elasticsearch_queries` to `true` in `config/elastic_apm.yml` to also 
 capture the body from requests in {es}. Refer to 
-https://github.com/elastic/elasticsearch-ruby/tree/master/docs/examples/apm[this example].
+https://github.com/elastic/elasticsearch-ruby/tree/main/docs/examples/apm[this example].
 
 
 [discrete]
@@ -165,7 +159,7 @@ client.search(index: 'myindex', q: 'title:test', headers: {user_agent: "My App"}
 
 The X-Opaque-Id header allows to track certain calls, or associate certain tasks 
 with the client that started them (refer to 
-https://www.elastic.co/guide/en/elasticsearch/reference/master/tasks.html#_identifying_running_tasks[the documentation]). 
+https://www.elastic.co/guide/en/elasticsearch/reference/current/tasks.html#_identifying_running_tasks[the documentation]).
 To use this feature, you need to set an id for `opaque_id` on the client on each 
 request. Example:
 
@@ -218,7 +212,7 @@ You can also use the `transport_options` argument documented below.
 
 If you pass multiple hosts to the client, it rotates across them in a 
 round-robin fashion by default. When the same client would be running in 
-multiple processes (for exaample, in a Ruby web server such as Thin), it might 
+multiple processes (for example, in a Ruby web server such as Thin), it might 
 keep connecting to the same nodes "at once". To prevent this, you can randomize 
 the hosts collection on initialization and reloading:
 
@@ -238,7 +232,7 @@ failed request on a different host:
 Elasticsearch::Client.new(hosts: ['localhost:9200', 'localhost:9201'], retry_on_failure: true)
 ```
 
-By default, the client retries the request 3 times. You can specify how many 
+By default, the client does not retry the request. You can specify how many 
 times to retry before it raises an exception by passing a number to 
 `retry_on_failure`:
 
@@ -319,18 +313,14 @@ Elasticsearch::Client.new(
 [[connection-selector]]
 ==== Connection Selector
 
-By default, the client rotates the connections in a round-robin fashion, using 
-the `Elasticsearch::Transport::Transport::Connections::Selector::RoundRobin` 
-strategy.
+By default, the client rotates the connections in a round-robin fashion, using the `Elastic::Transport::Transport::Connections::Selector::RoundRobin` strategy.
 
-You can implement your own strategy to customize the behaviour. For example, 
-let's have a "rack aware" strategy, which prefers the nodes with a specific 
-attribute. The strategy uses the other nodes, only when these are unavailable:
+You can implement your own strategy to customize the behaviour. For example, let's have a "rack aware" strategy, which prefers the nodes with a specific attribute. The strategy uses the other nodes, only when these are unavailable:
 
 [source,ruby]
 ------------------------------------
 class RackIdSelector
-  include Elasticsearch::Transport::Transport::Connections::Selector::Base
+  include Elastic::Transport::Transport::Connections::Selector::Base
 
   def select(options={})
     connections.select do |c|
@@ -348,33 +338,22 @@ Elasticsearch::Client.new hosts: ['x1.search.org', 'x2.search.org'], selector_cl
 [[serializer-implementations]]
 ==== Serializer Implementations
 
-By default, the https://rubygems.org/gems/multi_json[MultiJSON] library is used 
-as the serializer implementation, and it picks up the "right" adapter based on 
-gems available.
+By default, the https://rubygems.org/gems/multi_json[MultiJSON] library is used as the serializer implementation, and it picks up the "right" adapter based on gems available.
 
-The serialization component is pluggable, though, so you can write your own by 
-including the `Elasticsearch::Transport::Transport::Serializer::Base` module, 
-implementing the required contract, and passing it to the client as the 
-`serializer_class` or `serializer` parameter.
+The serialization component is pluggable, though, so you can write your own by including the `Elastic::Transport::Transport::Serializer::Base` module, implementing the required contract, and passing it to the client as the `serializer_class` or `serializer` parameter.
 
 
 [discrete]
 [[exception-handling]]
 ==== Exception Handling
 
-The library defines a 
-https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-transport/lib/elasticsearch/transport/transport/errors.rb[number of exception classes] 
-for various client and server errors, as well as unsuccessful HTTP responses, 
-making it possible to rescue specific exceptions with desired granularity.
+The library defines a
+https://github.com/elastic/elastic-transport-ruby/blob/main/lib/elastic/transport/transport/errors.rb[number of exception classes] for various client and server errors, as well as unsuccessful HTTP responses, making it possible to rescue specific exceptions with desired granularity.
 
-The highest-level exception is `Elasticsearch::Transport::Transport::Error` and 
-is raised for any generic client or server errors.
+The highest-level exception is `Elastic::Transport::Transport::Error` and is raised for any generic client or server errors.
 
-`Elasticsearch::Transport::Transport::ServerError` is raised for server errors 
-only.
+`Elastic::Transport::Transport::ServerError` is raised for server errors only.
 
-As an example for response-specific errors, a 404 response status raises an 
-`Elasticsearch::Transport::Transport::Errors::NotFound` exception.
+As an example for response-specific errors, a 404 response status raises an `Elastic::Transport::Transport::Errors::NotFound` exception.
 
-Finally, `Elasticsearch::Transport::Transport::SnifferTimeoutError` is raised 
-when connection reloading ("sniffing") times out.
+Finally, `Elastic::Transport::Transport::SnifferTimeoutError` is raised when connection reloading ("sniffing") times out.

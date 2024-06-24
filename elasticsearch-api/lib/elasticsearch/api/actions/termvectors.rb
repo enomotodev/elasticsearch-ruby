@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Actions
@@ -36,16 +39,22 @@ module Elasticsearch
       # @option arguments [Hash] :headers Custom HTTP headers
       # @option arguments [Hash] :body Define parameters and or supply a document to get termvectors for. See documentation.
       #
-      # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/docs-termvectors.html
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-termvectors.html
       #
       def termvectors(arguments = {})
+        request_opts = { endpoint: arguments[:endpoint] || 'termvectors' }
+
+        defined_params = %i[index id].each_with_object({}) do |variable, set_variables|
+          set_variables[variable] = arguments[variable] if arguments.key?(variable)
+        end
+        request_opts[:defined_params] = defined_params unless defined_params.empty?
+
         raise ArgumentError, "Required argument 'index' missing" unless arguments[:index]
 
+        arguments = arguments.clone
         headers = arguments.delete(:headers) || {}
 
         body = arguments.delete(:body)
-
-        arguments = arguments.clone
 
         _index = arguments.delete(:index)
 
@@ -57,23 +66,24 @@ module Elasticsearch
                    Elasticsearch::API::HTTP_GET
                  end
 
-        endpoint = arguments.delete(:endpoint) || '_termvectors'
-        path   = if _index && _id
-                   "#{Utils.__listify(_index)}/_termvectors/#{Utils.__listify(_id)}"
-                 else
-                   "#{Utils.__listify(_index)}/_termvectors"
-                 end
+        arguments.delete(:endpoint)
+        path = if _index && _id
+                 "#{Utils.__listify(_index)}/_termvectors/#{Utils.__listify(_id)}"
+               else
+                 "#{Utils.__listify(_index)}/_termvectors"
+               end
         params = Utils.process_params(arguments)
 
         Elasticsearch::API::Response.new(
-          perform_request(method, path, params, body, headers)
+          perform_request(method, path, params, body, headers, request_opts)
         )
       end
 
       # Deprecated: Use the plural version, {#termvectors}
       #
       def termvector(arguments = {})
-        termvectors(arguments.merge endpoint: '_termvector')
+        warn '[DEPRECATION] `termvector` is deprecated. Please use the plural version, `termvectors` instead.'
+        termvectors(arguments.merge(endpoint: '_termvector'))
       end
     end
   end

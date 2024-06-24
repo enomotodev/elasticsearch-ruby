@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Security
@@ -26,23 +29,27 @@ module Elasticsearch
         # @option arguments [String] :username user name of the user who created this API key to be retrieved
         # @option arguments [String] :realm_name realm name of the user who created this API key to be retrieved
         # @option arguments [Boolean] :owner flag to query API keys owned by the currently authenticated user
+        # @option arguments [Boolean] :with_limited_by flag to show the limited-by role descriptors of API Keys
+        # @option arguments [Boolean] :with_profile_uid flag to also retrieve the API Key's owner profile uid, if it exists
+        # @option arguments [Boolean] :active_only flag to limit response to only active (not invalidated or expired) API keys
         # @option arguments [Hash] :headers Custom HTTP headers
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-get-api-key.html
         #
         def get_api_key(arguments = {})
-          headers = arguments.delete(:headers) || {}
-
-          body = nil
+          request_opts = { endpoint: arguments[:endpoint] || 'security.get_api_key' }
 
           arguments = arguments.clone
+          headers = arguments.delete(:headers) || {}
+
+          body   = nil
 
           method = Elasticsearch::API::HTTP_GET
-          path   = "_security/api_key"
+          path   = '_security/api_key'
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

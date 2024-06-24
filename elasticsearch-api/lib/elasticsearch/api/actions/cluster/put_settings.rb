@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Cluster
@@ -27,23 +30,24 @@ module Elasticsearch
         # @option arguments [Hash] :headers Custom HTTP headers
         # @option arguments [Hash] :body The settings to be updated. Can be either `transient` or `persistent` (survives cluster restart). (*Required*)
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-update-settings.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-update-settings.html
         #
         def put_settings(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'cluster.put_settings' }
+
           raise ArgumentError, "Required argument 'body' missing" unless arguments[:body]
 
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = arguments.delete(:body) || {}
 
-          arguments = arguments.clone
-
           method = Elasticsearch::API::HTTP_PUT
-          path   = "_cluster/settings"
+          path   = '_cluster/settings'
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

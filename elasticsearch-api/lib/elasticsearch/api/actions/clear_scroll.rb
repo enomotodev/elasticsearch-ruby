@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Actions
@@ -32,11 +35,17 @@ module Elasticsearch
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/clear-scroll-api.html
       #
       def clear_scroll(arguments = {})
+        request_opts = { endpoint: arguments[:endpoint] || 'clear_scroll' }
+
+        defined_params = [:scroll_id].each_with_object({}) do |variable, set_variables|
+          set_variables[variable] = arguments[variable] if arguments.key?(variable)
+        end
+        request_opts[:defined_params] = defined_params unless defined_params.empty?
+
+        arguments = arguments.clone
         headers = arguments.delete(:headers) || {}
 
         body = arguments.delete(:body)
-
-        arguments = arguments.clone
 
         _scroll_id = arguments.delete(:scroll_id)
 
@@ -44,13 +53,21 @@ module Elasticsearch
         path   = if _scroll_id
                    "_search/scroll/#{Utils.__listify(_scroll_id)}"
                  else
-                   "_search/scroll"
+                   '_search/scroll'
                  end
-        params = {}
+        params = Utils.process_params(arguments)
 
-        Elasticsearch::API::Response.new(
-          perform_request(method, path, params, body, headers)
-        )
+        if Array(arguments[:ignore]).include?(404)
+          Utils.__rescue_from_not_found do
+            Elasticsearch::API::Response.new(
+              perform_request(method, path, params, body, headers, request_opts)
+            )
+          end
+        else
+          Elasticsearch::API::Response.new(
+            perform_request(method, path, params, body, headers, request_opts)
+          )
+        end
       end
     end
   end

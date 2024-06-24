@@ -49,31 +49,36 @@ module Elasticsearch
         @client = client
         begin
           documents = YAML.load_stream(File.new(file_name))
+        rescue Psych::SyntaxError => e
+          raise e unless e.message.include?('found unexpected \':\'')
+
+          message = "Exception found when parsing YAML in #{file_name}: #{e.message}"
+          logger.error message
+          raise SkipTestsException, message
         rescue StandardError => e
           logger.error e
           logger.error "Filename : #{@name}"
         end
         @test_definitions = documents.reject { |doc| doc['setup'] || doc['teardown'] }
         @setup = documents.find { |doc| doc['setup'] }
-        skip_entire_test_file? if @setup
+        skip_entire_test_file?(file_name) if @setup
         @teardown = documents.find { |doc| doc['teardown'] }
         @features_to_skip = REST_API_YAML_SKIP_FEATURES + features_to_skip
       end
 
-      def skip_entire_test_file?
+      def skip_entire_test_file?(file_name)
         @skip = @setup['setup']&.select { |a| a['skip'] }
         return false if @skip.empty?
 
-        raise SkipTestsException if skip_version?(@client, @skip.first['skip'])
+        raise SkipTestsException, "Skipping #{file_name} due to 'skip all'." if skip_version?(@client, @skip.first['skip'])
       end
 
       def skip_version?(client, skip_definition)
-        return true if skip_definition['version'] == 'all'
+        return true if skip_definition.fetch('version', '').include? 'all'
 
-        range_partition = /\s*-\s*/
         return unless (versions = skip_definition['version'])
 
-        low, high = __parse_versions(versions.partition(range_partition))
+        low, high = __parse_versions(versions)
         range = low..high
         begin
           server_version = client.info['version']['number']
@@ -84,7 +89,13 @@ module Elasticsearch
       end
 
       def __parse_versions(versions)
-        versions = versions.split('-') if versions.is_a? String
+        if versions.count('-') == 2
+          versions = versions.gsub(/\s/, '').gsub(/-/, '').split(',')
+        else
+          range_partition = /\s*-\s*/
+          versions = versions.partition(range_partition)
+          versions = versions.split('-') if versions.is_a? String
+        end
 
         low = (['', nil].include? versions[0]) ? '0' : versions[0]
         high = (['', nil].include? versions[2]) ? '9999' : versions[2]

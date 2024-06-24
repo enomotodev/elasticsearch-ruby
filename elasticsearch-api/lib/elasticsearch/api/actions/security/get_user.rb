@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Security
@@ -22,16 +25,23 @@ module Elasticsearch
         # Retrieves information about users in the native realm and built-in users.
         #
         # @option arguments [List] :username A comma-separated list of usernames
+        # @option arguments [Boolean] :with_profile_uid flag to retrieve profile uid (if exists) associated to the user
         # @option arguments [Hash] :headers Custom HTTP headers
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-get-user.html
         #
         def get_user(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'security.get_user' }
+
+          defined_params = [:username].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = nil
-
-          arguments = arguments.clone
 
           _username = arguments.delete(:username)
 
@@ -39,19 +49,19 @@ module Elasticsearch
           path   = if _username
                      "_security/user/#{Utils.__listify(_username)}"
                    else
-                     "_security/user"
+                     '_security/user'
                    end
-          params = {}
+          params = Utils.process_params(arguments)
 
           if Array(arguments[:ignore]).include?(404)
-            Utils.__rescue_from_not_found {
+            Utils.__rescue_from_not_found do
               Elasticsearch::API::Response.new(
-                perform_request(method, path, params, body, headers)
+                perform_request(method, path, params, body, headers, request_opts)
               )
-            }
+            end
           else
             Elasticsearch::API::Response.new(
-              perform_request(method, path, params, body, headers)
+              perform_request(method, path, params, body, headers, request_opts)
             )
           end
         end

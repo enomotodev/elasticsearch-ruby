@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Monitoring
@@ -34,16 +37,22 @@ module Elasticsearch
         # Deprecated since version 7.0.0
         #
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/monitor-elasticsearch-cluster.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/monitor-elasticsearch-cluster.html
         #
         def bulk(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'monitoring.bulk' }
+
+          defined_params = [:type].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
           raise ArgumentError, "Required argument 'body' missing" unless arguments[:body]
 
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = arguments.delete(:body)
-
-          arguments = arguments.clone
 
           _type = arguments.delete(:type)
 
@@ -51,19 +60,19 @@ module Elasticsearch
           path   = if _type
                      "_monitoring/#{Utils.__listify(_type)}/bulk"
                    else
-                     "_monitoring/bulk"
+                     '_monitoring/bulk'
                    end
           params = Utils.process_params(arguments)
 
-          if body.is_a? Array
-            payload = Elasticsearch::API::Utils.__bulkify(body)
-          else
-            payload = body
-          end
+          payload = if body.is_a? Array
+                      Elasticsearch::API::Utils.__bulkify(body)
+                    else
+                      body
+                    end
 
-          headers.merge!("Content-Type" => "application/x-ndjson")
+          headers.merge!('Content-Type' => 'application/x-ndjson')
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, payload, headers)
+            perform_request(method, path, params, payload, headers, request_opts)
           )
         end
       end

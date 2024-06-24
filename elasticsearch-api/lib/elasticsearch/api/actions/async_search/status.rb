@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module AsyncSearch
@@ -22,27 +25,34 @@ module Elasticsearch
         # Retrieves the status of a previously submitted async search request given its ID.
         #
         # @option arguments [String] :id The async search ID
+        # @option arguments [Time] :keep_alive Specify the time interval in which the results (partial or final) for this search will be available
         # @option arguments [Hash] :headers Custom HTTP headers
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/async-search.html
         #
         def status(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'async_search.status' }
+
+          defined_params = [:id].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
           raise ArgumentError, "Required argument 'id' missing" unless arguments[:id]
 
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = nil
-
-          arguments = arguments.clone
 
           _id = arguments.delete(:id)
 
           method = Elasticsearch::API::HTTP_GET
           path   = "_async_search/status/#{Utils.__listify(_id)}"
-          params = {}
+          params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

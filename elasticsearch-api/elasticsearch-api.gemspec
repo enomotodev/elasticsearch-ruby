@@ -23,8 +23,8 @@ require 'elasticsearch/api/version'
 Gem::Specification.new do |s|
   s.name          = 'elasticsearch-api'
   s.version       = Elasticsearch::API::VERSION
-  s.authors       = ['Karel Minarik']
-  s.email         = ['karel.minarik@elasticsearch.org']
+  s.authors       = ['Elastic Client Library Maintainers']
+  s.email         = ['client-libs@elastic.co']
   s.summary       = 'Ruby API for Elasticsearch.'
   s.homepage      = 'https://www.elastic.co/guide/en/elasticsearch/client/ruby-api/current/index.html'
   s.license       = 'Apache-2.0'
@@ -49,8 +49,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'ansi'
   s.add_development_dependency 'bundler'
   s.add_development_dependency 'elasticsearch'
+  s.add_development_dependency 'elasticsearch-test-runner' unless defined?(JRUBY_VERSION) && JRUBY_VERSION <= "9.4"
   s.add_development_dependency 'minitest'
-  s.add_development_dependency 'minitest-reporters'
+  s.add_development_dependency 'minitest-reporters', '>= 1.6'
   s.add_development_dependency 'mocha'
   s.add_development_dependency 'pry'
   s.add_development_dependency 'rake'

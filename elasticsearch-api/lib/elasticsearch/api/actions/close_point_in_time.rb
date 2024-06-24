@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Actions
@@ -23,21 +26,22 @@ module Elasticsearch
       # @option arguments [Hash] :headers Custom HTTP headers
       # @option arguments [Hash] :body a point-in-time id to close
       #
-      # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/point-in-time-api.html
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/point-in-time-api.html
       #
       def close_point_in_time(arguments = {})
-        headers = arguments.delete(:headers) || {}
-
-        body = arguments.delete(:body)
+        request_opts = { endpoint: arguments[:endpoint] || 'close_point_in_time' }
 
         arguments = arguments.clone
+        headers = arguments.delete(:headers) || {}
+
+        body   = arguments.delete(:body)
 
         method = Elasticsearch::API::HTTP_DELETE
-        path   = "_pit"
+        path   = '_pit'
         params = {}
 
         Elasticsearch::API::Response.new(
-          perform_request(method, path, params, body, headers)
+          perform_request(method, path, params, body, headers, request_opts)
         )
       end
     end

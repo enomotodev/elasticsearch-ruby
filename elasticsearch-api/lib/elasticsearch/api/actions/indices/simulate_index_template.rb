@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Indices
@@ -25,19 +28,26 @@ module Elasticsearch
         # @option arguments [Boolean] :create Whether the index template we optionally defined in the body should only be dry-run added if new or can also replace an existing one
         # @option arguments [String] :cause User defined reason for dry-run creating the new template for simulation purposes
         # @option arguments [Time] :master_timeout Specify timeout for connection to master
+        # @option arguments [Boolean] :include_defaults Return all relevant default configurations for this index template simulation (default: false)
         # @option arguments [Hash] :headers Custom HTTP headers
         # @option arguments [Hash] :body New index template definition, which will be included in the simulation, as if it already exists in the system
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-templates.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-simulate-index.html
         #
         def simulate_index_template(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'indices.simulate_index_template' }
+
+          defined_params = [:name].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
           raise ArgumentError, "Required argument 'name' missing" unless arguments[:name]
 
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = arguments.delete(:body)
-
-          arguments = arguments.clone
 
           _name = arguments.delete(:name)
 
@@ -46,7 +56,7 @@ module Elasticsearch
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

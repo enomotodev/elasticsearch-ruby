@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module TextStructure
@@ -32,6 +35,7 @@ module Elasticsearch
         # @option arguments [String] :quote Optional parameter to specify the quote character for a delimited file - must be a single character
         # @option arguments [Boolean] :should_trim_fields Optional parameter to specify whether the values between delimiters in a delimited file should have whitespace trimmed from them
         # @option arguments [String] :grok_pattern Optional parameter to specify the Grok pattern that should be used to extract fields from messages in a semi-structured text file
+        # @option arguments [String] :ecs_compatibility Optional parameter to specify the compatibility mode with ECS Grok patterns - may be either 'v1' or 'disabled'
         # @option arguments [String] :timestamp_field Optional parameter to specify the timestamp field in the file
         # @option arguments [String] :timestamp_format Optional parameter to specify the timestamp format in the file - may be either a Joda or Java time format
         # @option arguments [Boolean] :explain Whether to include a commentary on how the structure was derived
@@ -41,27 +45,28 @@ module Elasticsearch
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/find-structure.html
         #
         def find_structure(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'text_structure.find_structure' }
+
           raise ArgumentError, "Required argument 'body' missing" unless arguments[:body]
 
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
-          body = arguments.delete(:body)
-
-          arguments = arguments.clone
+          body   = arguments.delete(:body)
 
           method = Elasticsearch::API::HTTP_POST
-          path   = "_text_structure/find_structure"
+          path   = '_text_structure/find_structure'
           params = Utils.process_params(arguments)
 
-          if body.is_a? Array
-            payload = Elasticsearch::API::Utils.__bulkify(body)
-          else
-            payload = body
-          end
+          payload = if body.is_a? Array
+                      Elasticsearch::API::Utils.__bulkify(body)
+                    else
+                      body
+                    end
 
-          headers.merge!("Content-Type" => "application/x-ndjson")
+          headers.merge!('Content-Type' => 'application/x-ndjson')
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, payload, headers)
+            perform_request(method, path, params, payload, headers, request_opts)
           )
         end
       end

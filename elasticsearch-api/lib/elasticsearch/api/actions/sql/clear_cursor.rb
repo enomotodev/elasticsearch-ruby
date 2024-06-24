@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module SQL
@@ -27,20 +30,21 @@ module Elasticsearch
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/clear-sql-cursor-api.html
         #
         def clear_cursor(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'sql.clear_cursor' }
+
           raise ArgumentError, "Required argument 'body' missing" unless arguments[:body]
 
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
-          body = arguments.delete(:body)
-
-          arguments = arguments.clone
+          body   = arguments.delete(:body)
 
           method = Elasticsearch::API::HTTP_POST
-          path   = "_sql/close"
+          path   = '_sql/close'
           params = {}
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Actions
@@ -35,23 +38,30 @@ module Elasticsearch
       # @option arguments [String] :grid_type Determines the geometry type for features in the aggs layer. (options: grid, point, centroid)
       # @option arguments [Integer] :size Maximum number of features to return in the hits layer. Accepts 0-10000.
       # @option arguments [Boolean|long] :track_total_hits Indicate if the number of documents that match the query should be tracked. A number can also be specified, to accurately track the total hit count up to the number.
+      # @option arguments [Boolean] :with_labels If true, the hits and aggs layers will contain additional point features with suggested label positions for the original features.
       # @option arguments [Hash] :headers Custom HTTP headers
       # @option arguments [Hash] :body Search request body.
       #
-      # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/search-vector-tile-api.html
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-vector-tile-api.html
       #
       def search_mvt(arguments = {})
+        request_opts = { endpoint: arguments[:endpoint] || 'search_mvt' }
+
+        defined_params = %i[index field zoom x y].each_with_object({}) do |variable, set_variables|
+          set_variables[variable] = arguments[variable] if arguments.key?(variable)
+        end
+        request_opts[:defined_params] = defined_params unless defined_params.empty?
+
         raise ArgumentError, "Required argument 'index' missing" unless arguments[:index]
         raise ArgumentError, "Required argument 'field' missing" unless arguments[:field]
         raise ArgumentError, "Required argument 'zoom' missing" unless arguments[:zoom]
         raise ArgumentError, "Required argument 'x' missing" unless arguments[:x]
         raise ArgumentError, "Required argument 'y' missing" unless arguments[:y]
 
+        arguments = arguments.clone
         headers = arguments.delete(:headers) || {}
 
-        body = arguments.delete(:body)
-
-        arguments = arguments.clone
+        body   = arguments.delete(:body)
 
         _index = arguments.delete(:index)
 
@@ -68,7 +78,7 @@ module Elasticsearch
         params = Utils.process_params(arguments)
 
         Elasticsearch::API::Response.new(
-          perform_request(method, path, params, body, headers)
+          perform_request(method, path, params, body, headers, request_opts)
         )
       end
     end

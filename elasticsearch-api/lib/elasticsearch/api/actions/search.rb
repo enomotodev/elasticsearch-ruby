@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Actions
@@ -30,6 +33,7 @@ module Elasticsearch
       # @option arguments [List] :stored_fields A comma-separated list of stored fields to return as part of a hit
       # @option arguments [List] :docvalue_fields A comma-separated list of fields to return as the docvalue representation of a field for each hit
       # @option arguments [Number] :from Starting offset (default: 0)
+      # @option arguments [Boolean] :force_synthetic_source Should this request force synthetic _source? Use this to test if the mapping supports synthetic _source and to get a sense of the worst case performance. Fetches with this enabled will be slower the enabling synthetic source natively in the index.
       # @option arguments [Boolean] :ignore_unavailable Whether specified concrete indices should be ignored when unavailable (missing or closed)
       # @option arguments [Boolean] :ignore_throttled Whether specified concrete, expanded or aliased indices should be ignored when throttled
       # @option arguments [Boolean] :allow_no_indices Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
@@ -64,18 +68,24 @@ module Elasticsearch
       # @option arguments [Number] :pre_filter_shard_size A threshold that enforces a pre-filter roundtrip to prefilter search shards based on query rewriting if the number of shards the search request expands to exceeds the threshold. This filter roundtrip can limit the number of shards significantly if for instance a shard can not match any documents based on its rewrite method ie. if date filters are mandatory to match but the shard bounds and the query are disjoint.
       # @option arguments [Boolean] :rest_total_hits_as_int Indicates whether hits.total should be rendered as an integer or an object in the rest search response
       # @option arguments [String] :min_compatible_shard_node The minimum compatible version that all shards involved in search should have for this request to be successful
+      # @option arguments [Boolean] :include_named_queries_score Indicates whether hit.matched_queries should be rendered as a map that includes the name of the matched query associated with its score (true) or as an array containing the name of the matched queries (false)
       # @option arguments [Hash] :headers Custom HTTP headers
       # @option arguments [Hash] :body The search definition using the Query DSL
       #
-      # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/search-search.html
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html
       #
       def search(arguments = {})
+        request_opts = { endpoint: arguments[:endpoint] || 'search' }
+
+        defined_params = [:index].each_with_object({}) do |variable, set_variables|
+          set_variables[variable] = arguments[variable] if arguments.key?(variable)
+        end
+        request_opts[:defined_params] = defined_params unless defined_params.empty?
+
+        arguments = arguments.clone
         headers = arguments.delete(:headers) || {}
 
         body = arguments.delete(:body)
-
-        arguments = arguments.clone
-        arguments[:index] = UNDERSCORE_ALL if !arguments[:index] && arguments[:type]
 
         _index = arguments.delete(:index)
 
@@ -85,15 +95,15 @@ module Elasticsearch
                    Elasticsearch::API::HTTP_GET
                  end
 
-        path   = if _index
-                   "#{Utils.__listify(_index)}/_search"
-                 else
-                   "_search"
-                 end
+        path = if _index
+                 "#{Utils.__listify(_index)}/_search"
+               else
+                 '_search'
+               end
         params = Utils.process_params(arguments)
 
         Elasticsearch::API::Response.new(
-          perform_request(method, path, params, body, headers)
+          perform_request(method, path, params, body, headers, request_opts)
         )
       end
     end

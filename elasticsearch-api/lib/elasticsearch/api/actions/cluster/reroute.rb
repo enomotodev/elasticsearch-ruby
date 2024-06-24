@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Cluster
@@ -24,27 +27,28 @@ module Elasticsearch
         # @option arguments [Boolean] :dry_run Simulate the operation only and return the resulting state
         # @option arguments [Boolean] :explain Return an explanation of why the commands can or cannot be executed
         # @option arguments [Boolean] :retry_failed Retries allocation of shards that are blocked due to too many subsequent allocation failures
-        # @option arguments [List] :metric Limit the information returned to the specified metrics. Defaults to all but metadata (options: _all, blocks, metadata, nodes, routing_table, master_node, version)
+        # @option arguments [List] :metric Limit the information returned to the specified metrics. Defaults to all but metadata (options: _all, blocks, metadata, nodes, none, routing_table, master_node, version)
         # @option arguments [Time] :master_timeout Explicit operation timeout for connection to master node
         # @option arguments [Time] :timeout Explicit operation timeout
         # @option arguments [Hash] :headers Custom HTTP headers
         # @option arguments [Hash] :body The definition of `commands` to perform (`move`, `cancel`, `allocate`)
         #
-        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/cluster-reroute.html
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-reroute.html
         #
         def reroute(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'cluster.reroute' }
+
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = arguments.delete(:body) || {}
 
-          arguments = arguments.clone
-
           method = Elasticsearch::API::HTTP_POST
-          path   = "_cluster/reroute"
+          path   = '_cluster/reroute'
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

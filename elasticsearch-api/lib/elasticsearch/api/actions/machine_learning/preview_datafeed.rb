@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module MachineLearning
@@ -22,17 +25,25 @@ module Elasticsearch
         # Previews a datafeed.
         #
         # @option arguments [String] :datafeed_id The ID of the datafeed to preview
+        # @option arguments [String] :start The start time from where the datafeed preview should begin
+        # @option arguments [String] :end The end time when the datafeed preview should stop
         # @option arguments [Hash] :headers Custom HTTP headers
         # @option arguments [Hash] :body The datafeed config and job config with which to execute the preview
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/ml-preview-datafeed.html
         #
         def preview_datafeed(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'ml.preview_datafeed' }
+
+          defined_params = [:datafeed_id].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = arguments.delete(:body)
-
-          arguments = arguments.clone
 
           _datafeed_id = arguments.delete(:datafeed_id)
 
@@ -42,15 +53,15 @@ module Elasticsearch
                      Elasticsearch::API::HTTP_GET
                    end
 
-          path   = if _datafeed_id
-                     "_ml/datafeeds/#{Utils.__listify(_datafeed_id)}/_preview"
-                   else
-                     "_ml/datafeeds/_preview"
-                   end
-          params = {}
+          path = if _datafeed_id
+                   "_ml/datafeeds/#{Utils.__listify(_datafeed_id)}/_preview"
+                 else
+                   '_ml/datafeeds/_preview'
+                 end
+          params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

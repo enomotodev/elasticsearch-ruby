@@ -35,24 +35,22 @@ module Elasticsearch
 
     # Create a client connected to an Elasticsearch cluster.
     #
+    # @param [Hash] arguments - initializer arguments
     # @option arguments [String] :cloud_id - The Cloud ID to connect to Elastic Cloud
-    # @option api_key [String, Hash] :api_key Use API Key Authentication, either the base64 encoding of `id` and `api_key`
-    #                                         joined by a colon as a String, or a hash with the `id` and `api_key` values.
-    # @option opaque_id_prefix [String] :opaque_id_prefix set a prefix for X-Opaque-Id when initializing the client.
-    #                                                     This will be prepended to the id you set before each request
-    #                                                     if you're using X-Opaque-Id
+    # @option arguments [String, Hash] :api_key Use API Key Authentication, either the base64 encoding of `id` and `api_key`
+    #                                           joined by a colon as a String, or a hash with the `id` and `api_key` values.
+    # @option arguments [String] :opaque_id_prefix set a prefix for X-Opaque-Id when initializing the client.
+    #                                              This will be prepended to the id you set before each request
+    #                                              if you're using X-Opaque-Id
+    # @option arguments [Hash] :headers Custom HTTP Request Headers
+    #
     def initialize(arguments = {}, &block)
       @verified = false
+      @warned = false
       @opaque_id_prefix = arguments[:opaque_id_prefix] || nil
       api_key(arguments) if arguments[:api_key]
-      if arguments[:cloud_id]
-        arguments[:hosts] = setup_cloud_host(
-          arguments[:cloud_id],
-          arguments[:user],
-          arguments[:password],
-          arguments[:port]
-        )
-      end
+      setup_cloud(arguments) if arguments[:cloud_id]
+      set_user_agent!(arguments) unless sent_user_agent?(arguments)
       @transport = Elastic::Transport::Client.new(arguments, &block)
     end
 
@@ -61,14 +59,15 @@ module Elasticsearch
         super
       elsif name == :perform_request
         # The signature for perform_request is:
-        # method, path, params, body, headers
+        # method, path, params, body, headers, opts
         if (opaque_id = args[2]&.delete(:opaque_id))
           headers = args[4] || {}
           opaque_id = @opaque_id_prefix ? "#{@opaque_id_prefix}#{opaque_id}" : opaque_id
           args[4] = headers.merge('X-Opaque-Id' => opaque_id)
         end
-        if name == :perform_request
-          verify_elasticsearch unless @verified
+        unless @verified
+          verify_elasticsearch(*args, &block)
+        else
           @transport.perform_request(*args, &block)
         end
       else
@@ -82,46 +81,34 @@ module Elasticsearch
 
     private
 
-    def verify_elasticsearch
+    def verify_elasticsearch(*args, &block)
       begin
-        response = elasticsearch_validation_request
+        response = @transport.perform_request(*args, &block)
       rescue Elastic::Transport::Transport::Errors::Unauthorized,
-             Elastic::Transport::Transport::Errors::Forbidden
-        @verified = true
+             Elastic::Transport::Transport::Errors::Forbidden,
+             Elastic::Transport::Transport::Errors::RequestEntityTooLarge => e
         warn(SECURITY_PRIVILEGES_VALIDATION_WARNING)
-        return
+        @verified = true
+        raise e
       rescue Elastic::Transport::Transport::Error => e
+        unless @warned
+          warn(VALIDATION_WARNING)
+          @warned = true
+        end
+        raise e
+      rescue StandardError => e
         warn(VALIDATION_WARNING)
-        return
+        raise e
       end
-
-      body = if response.headers['content-type'] == 'application/yaml'
-               require 'yaml'
-               YAML.load(response.body)
-             else
-               response.body
-             end
-      version = body.dig('version', 'number')
-      verify_with_version_or_header(version, response.headers)
-    rescue StandardError => e
-      warn(VALIDATION_WARNING)
-      raise e
-    end
-
-    def verify_with_version_or_header(version, headers)
-      if version.nil? ||
-         Gem::Version.new(version) < Gem::Version.new('8.0.0.pre') && version != '8.0.0-SNAPSHOT' ||
-         headers['x-elastic-product'] != 'Elasticsearch'
-
-        raise Elasticsearch::UnsupportedProductError
-      end
-
+      raise Elasticsearch::UnsupportedProductError unless response.headers['x-elastic-product'] == 'Elasticsearch'
       @verified = true
+      response
     end
 
     def setup_cloud_host(cloud_id, user, password, port)
       name = cloud_id.split(':')[0]
-      cloud_url, elasticsearch_instance = Base64.decode64(cloud_id.gsub("#{name}:", '')).split('$')
+      base64_decoded = cloud_id.gsub("#{name}:", '').unpack1('m')
+      cloud_url, elasticsearch_instance = base64_decoded.split('$')
 
       if cloud_url.include?(':')
         url, port = cloud_url.split(':')
@@ -145,21 +132,49 @@ module Elasticsearch
       if (headers = arguments.dig(:transport_options, :headers))
         headers.merge!(authorization)
       else
-        arguments[:transport_options] = {
-          headers: authorization
-        }
+        arguments[:transport_options] ||= {}
+        arguments[:transport_options].merge!({ headers: authorization })
       end
+    end
+
+    def setup_cloud(arguments)
+      arguments[:hosts] = setup_cloud_host(
+        arguments[:cloud_id],
+        arguments[:user],
+        arguments[:password],
+        arguments[:port]
+      )
     end
 
     # Encode credentials for the Authorization Header
     # Credentials is the base64 encoding of id and api_key joined by a colon
     # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-create-api-key.html
     def encode(api_key)
-      Base64.strict_encode64([api_key[:id], api_key[:api_key]].join(':'))
+      credentials = [api_key[:id], api_key[:api_key]].join(':')
+      [credentials].pack('m0')
     end
 
     def elasticsearch_validation_request
       @transport.perform_request('GET', '/')
+    end
+
+    def sent_user_agent?(arguments)
+      return unless (headers = arguments&.[](:transport_options)&.[](:headers))
+      !!headers.keys.detect { |h| h =~ /user-?_?agent/ }
+    end
+
+    def set_user_agent!(arguments)
+      user_agent = [
+        "elasticsearch-ruby/#{Elasticsearch::VERSION}",
+        "elastic-transport-ruby/#{Elastic::Transport::VERSION}",
+        "RUBY_VERSION: #{RUBY_VERSION}"
+      ]
+      if RbConfig::CONFIG && RbConfig::CONFIG['host_os']
+        user_agent << "#{RbConfig::CONFIG['host_os'].split('_').first[/[a-z]+/i].downcase} #{RbConfig::CONFIG['target_cpu']}"
+      end
+      arguments[:transport_options] ||= {}
+      arguments[:transport_options][:headers] ||= {}
+      arguments[:transport_options][:headers].merge!({ user_agent: user_agent.join('; ')})
     end
   end
 

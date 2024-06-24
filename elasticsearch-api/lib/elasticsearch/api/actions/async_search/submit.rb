@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module AsyncSearch
@@ -69,11 +72,17 @@ module Elasticsearch
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/async-search.html
         #
         def submit(arguments = {})
-          headers = arguments.delete(:headers) || {}
+          request_opts = { endpoint: arguments[:endpoint] || 'async_search.submit' }
 
-          body = arguments.delete(:body)
+          defined_params = [:index].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
 
           arguments = arguments.clone
+          headers = arguments.delete(:headers) || {}
+
+          body   = arguments.delete(:body)
 
           _index = arguments.delete(:index)
 
@@ -81,12 +90,12 @@ module Elasticsearch
           path   = if _index
                      "#{Utils.__listify(_index)}/_async_search"
                    else
-                     "_async_search"
+                     '_async_search'
                    end
           params = Utils.process_params(arguments)
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

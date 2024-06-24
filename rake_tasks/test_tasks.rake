@@ -17,7 +17,6 @@
 
 UNIT_TESTED_PROJECTS = [
   'elasticsearch',
-  'elasticsearch-dsl',
   'elasticsearch-api'
 ].freeze
 
@@ -60,6 +59,19 @@ namespace :test do
     puts '-' * 80
     sh "cd #{CURRENT_PATH.join('elasticsearch-api')} && unset BUNDLE_GEMFILE && TEST_SUITE=platinum bundle exec rake test:rest_api"
     puts "\n"
+  end
+
+  desc 'Run YAML test runner tests'
+  task :yaml do
+    sh "cd #{CURRENT_PATH.join('elasticsearch-api')} && unset BUNDLE_GEMFILE && bundle exec rake test:yaml"
+  end
+
+  namespace :platinum do
+    desc 'Run platinum integration tests'
+    task :integration do
+      sh "cd #{CURRENT_PATH.join('elasticsearch-api')} && unset BUNDLE_GEMFILE && bundle exec rake test:platinum:integration"
+      puts "\n"
+    end
   end
 
   # Returns: version_number, build_hash

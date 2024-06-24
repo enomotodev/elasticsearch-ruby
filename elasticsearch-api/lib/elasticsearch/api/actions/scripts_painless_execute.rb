@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Actions
@@ -27,14 +30,15 @@ module Elasticsearch
       # @option arguments [Hash] :headers Custom HTTP headers
       # @option arguments [Hash] :body The script to execute
       #
-      # @see https://www.elastic.co/guide/en/elasticsearch/painless/master/painless-execute-api.html
+      # @see https://www.elastic.co/guide/en/elasticsearch/painless/current/painless-execute-api.html
       #
       def scripts_painless_execute(arguments = {})
-        headers = arguments.delete(:headers) || {}
-
-        body = arguments.delete(:body)
+        request_opts = { endpoint: arguments[:endpoint] || 'scripts_painless_execute' }
 
         arguments = arguments.clone
+        headers = arguments.delete(:headers) || {}
+
+        body   = arguments.delete(:body)
 
         method = if body
                    Elasticsearch::API::HTTP_POST
@@ -42,11 +46,11 @@ module Elasticsearch
                    Elasticsearch::API::HTTP_GET
                  end
 
-        path   = "_scripts/painless/_execute"
+        path = '_scripts/painless/_execute'
         params = {}
 
         Elasticsearch::API::Response.new(
-          perform_request(method, path, params, body, headers)
+          perform_request(method, path, params, body, headers, request_opts)
         )
       end
     end

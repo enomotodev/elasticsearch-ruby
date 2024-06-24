@@ -79,7 +79,16 @@ module Elasticsearch
                 Elasticsearch::API::TextStructure,
                 Elasticsearch::API::Transform,
                 Elasticsearch::API::Watcher,
-                Elasticsearch::API::XPack
+                Elasticsearch::API::XPack,
+                Elasticsearch::API::SearchApplication,
+                Elasticsearch::API::Synonyms,
+                Elasticsearch::API::QueryRuleset,
+                Elasticsearch::API::Esql,
+                Elasticsearch::API::Inference,
+                Elasticsearch::API::Profiling,
+                Elasticsearch::API::Simulate,
+                Elasticsearch::API::Connector,
+                Elasticsearch::API::QueryRule
     end
 
     # The serializer class

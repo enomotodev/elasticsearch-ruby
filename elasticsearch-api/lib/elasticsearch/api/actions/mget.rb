@@ -14,13 +14,17 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module Actions
       # Allows to get multiple documents in one request.
       #
       # @option arguments [String] :index The name of the index
+      # @option arguments [Boolean] :force_synthetic_source Should this request force synthetic _source? Use this to test if the mapping supports synthetic _source and to get a sense of the worst case performance. Fetches with this enabled will be slower the enabling synthetic source natively in the index.
       # @option arguments [List] :stored_fields A comma-separated list of stored fields to return in the response
       # @option arguments [String] :preference Specify the node or shard the operation should be performed on (default: random)
       # @option arguments [Boolean] :realtime Specify whether to perform the operation in realtime or search mode
@@ -32,16 +36,22 @@ module Elasticsearch
       # @option arguments [Hash] :headers Custom HTTP headers
       # @option arguments [Hash] :body Document identifiers; can be either `docs` (containing full document information) or `ids` (when index is provided in the URL. (*Required*)
       #
-      # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/docs-multi-get.html
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html
       #
       def mget(arguments = {})
+        request_opts = { endpoint: arguments[:endpoint] || 'mget' }
+
+        defined_params = [:index].each_with_object({}) do |variable, set_variables|
+          set_variables[variable] = arguments[variable] if arguments.key?(variable)
+        end
+        request_opts[:defined_params] = defined_params unless defined_params.empty?
+
         raise ArgumentError, "Required argument 'body' missing" unless arguments[:body]
 
+        arguments = arguments.clone
         headers = arguments.delete(:headers) || {}
 
-        body = arguments.delete(:body)
-
-        arguments = arguments.clone
+        body   = arguments.delete(:body)
 
         _index = arguments.delete(:index)
 
@@ -49,12 +59,12 @@ module Elasticsearch
         path   = if _index
                    "#{Utils.__listify(_index)}/_mget"
                  else
-                   "_mget"
+                   '_mget'
                  end
         params = Utils.process_params(arguments)
 
         Elasticsearch::API::Response.new(
-          perform_request(method, path, params, body, headers)
+          perform_request(method, path, params, body, headers, request_opts)
         )
       end
     end

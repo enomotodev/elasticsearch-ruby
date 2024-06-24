@@ -42,6 +42,14 @@ end
 # Validate that a field is `true`.
 RSpec::Matchers.define :match_true_field do |field, test|
   match do |response|
+    # TODO: Refactor! split_key for is_true
+    if (match = field.match(/(^\$[a-z]+)/))
+      keys = field.split('.')
+      keys.delete(match[1])
+      dynamic_key = test.cached_values[match[1].gsub('$', '')]
+      return !!dynamic_key.dig(*keys)
+    end
+
     # Handle is_true: ''
     return !!response if field == ''
 
@@ -77,17 +85,16 @@ end
 RSpec::Matchers.define :match_gte_field do |expected_pairs, test|
   match do |response|
     expected_pairs.all? do |expected_key, expected_value|
-
       split_key = TestFile::Test.split_and_parse_key(expected_key).collect do |k|
         test.get_cached_value(k)
       end
-      actual_value = split_key.inject(response) do |_response, key|
 
+      actual_value = split_key.inject(response) do |_response, key|
         # If the key is an index, indicating element of a list
         if _response.empty? && key == '$body'
           _response
         else
-          _response[key] || _response[key]
+          _response[key] || _response[key.to_s]
         end
       end
       actual_value >= test.get_cached_value(expected_value)
@@ -99,7 +106,6 @@ end
 RSpec::Matchers.define :match_gt_field do |expected_pairs, test|
   match do |response|
     expected_pairs.all? do |expected_key, expected_value|
-
       split_key = TestFile::Test.split_and_parse_key(expected_key).collect do |k|
         test.get_cached_value(k)
       end
@@ -121,7 +127,6 @@ end
 RSpec::Matchers.define :match_lte_field do |expected_pairs, test|
   match do |response|
     expected_pairs.all? do |expected_key, expected_value|
-
       split_key = TestFile::Test.split_and_parse_key(expected_key).collect do |k|
         test.get_cached_value(k)
       end
@@ -143,7 +148,6 @@ end
 RSpec::Matchers.define :match_lt_field do |expected_pairs, test|
   match do |response|
     expected_pairs.all? do |expected_key, expected_value|
-
       split_key = TestFile::Test.split_and_parse_key(expected_key).collect do |k|
         test.get_cached_value(k)
       end
@@ -190,10 +194,24 @@ RSpec::Matchers.define :match_response do |pairs, test|
 
   def compare_hash(expected_pairs, actual_hash, test)
     expected_pairs.each do |expected_key, expected_value|
-      # Find the value to compare in the response
-      split_key = TestFile::Test.split_and_parse_key(expected_key).collect do |k|
-        # Sometimes the expected *key* is a cached value from a previous request.
-        test.get_cached_value(k)
+      # TODO: Refactor! split_key
+      if (match = expected_key.match(/(^\$[a-z]+)/))
+        keys = expected_key.split('.')
+        keys.delete(match[1])
+        dynamic_key = test.cached_values[match[1].gsub('$', '')]
+        value = dynamic_key.dig(*keys)
+
+        if expected_pairs.values.first.is_a?(String) && expected_pairs.values.first.match?(/^\$/)
+          return test.cached_values[expected_pairs.values.first.gsub('$','')] == value
+        else
+          return expected_pairs.values.first == value
+        end
+
+      else
+        split_key = TestFile::Test.split_and_parse_key(expected_key).collect do |k|
+          # Sometimes the expected *key* is a cached value from a previous request.
+          test.get_cached_value(k)
+        end
       end
       # We now accept 'nested.keys' so let's try the previous implementation and if that doesn't
       # work, try with the nested key, otherwise, raise exception.
@@ -224,6 +242,8 @@ RSpec::Matchers.define :match_response do |pairs, test|
         unless compare_string(expected_value, actual_value, test, actual_hash)
           @mismatched_pairs.merge!(expected_key => expected_value)
         end
+      when Time
+        compare_string(expected_value.to_s, Time.new(actual_value).to_s, test, actual_hash)
       else
         unless expected_value == actual_value
           @mismatched_pairs.merge!(expected_key => expected_value)
@@ -243,9 +263,10 @@ RSpec::Matchers.define :match_response do |pairs, test|
       /#{parsed.tr("/", "")}/ =~ actual_value
     elsif !!(expected.match?(/^-?[0-9]{1}\.[0-9]+E[0-9]+/))
       # When the value in the yaml test is a big number, the format is
-      # different from what Ruby uses, so we transform  X.XXXXEXX to X.XXXXXe+XX
-      # to be able to compare the values
-      actual_value.to_s == expected.gsub('E', 'e+')
+      # different from what Ruby uses, so we try different options:
+      actual_value.to_s == expected.gsub('E', 'e+') || # transform  X.XXXXEXX to X.XXXXXe+XX to compare thme
+        actual_value == expected || # compare the actual values
+        expected.to_f.to_s == actual_value.to_f.to_s # transform both to Float and compare them
     elsif expected == '' && actual_value != ''
       actual_value == response
     else
@@ -278,7 +299,8 @@ RSpec::Matchers.define :match_error do |expected_error|
     # Remove surrounding '/' in string representing Regex
     expected_error = expected_error.chomp("/")
     expected_error = expected_error[1..-1] if expected_error =~ /^\//
-    message = actual_error.message.tr("\\","")
+
+    message = actual_error.message.tr('\\', '')
 
     case expected_error
     when 'request_timeout'
@@ -293,14 +315,16 @@ RSpec::Matchers.define :match_error do |expected_error|
       message =~ /\[400\]/
     when 'param'
       message =~ /\[400\]/ ||
-          actual_error.is_a?(ArgumentError)
+        actual_error.is_a?(ArgumentError)
     when 'unauthorized'
       actual_error.is_a?(Elastic::Transport::Transport::Errors::Unauthorized)
     when 'forbidden'
       actual_error.is_a?(Elastic::Transport::Transport::Errors::Forbidden)
-    when /error parsing field/
+    when /error parsing field/, /illegal_argument_exception/
       message =~ /\[400\]/ ||
         actual_error.is_a?(Elastic::Transport::Transport::Errors::BadRequest)
+    when /NullPointerException/
+      message =~ /\[400\]/
     else
       message =~ /#{expected_error}/
     end

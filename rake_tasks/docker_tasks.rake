@@ -35,6 +35,21 @@ namespace :docker do
     abort 'You need to set a version, e.g. rake docker:start[7.x-SNAPSHOT]' unless params[:version]
 
     test_suite = params[:suite] || 'free'
-    system("STACK_VERSION=#{params[:version]} TEST_SUITE=#{test_suite} ./.ci/run-elasticsearch.sh")
+    system("STACK_VERSION=#{params[:version]} TEST_SUITE=#{test_suite} ./.buildkite/run-elasticsearch.sh")
+  end
+end
+
+namespace :es do
+  desc <<~DOC
+    Start Elasticsearch docker container (shortcut), reads STACK_VERSION from buildkite pipeline
+  DOC
+  task :up do
+    version = File.read('./.buildkite/pipeline.yml').
+                split("\n").
+                select { |a| a.include? 'STACK_VERSION' }
+                .first
+                .strip
+                .gsub('STACK_VERSION: ','')
+    Rake.application.invoke_task("docker:start[#{version}]")
   end
 end

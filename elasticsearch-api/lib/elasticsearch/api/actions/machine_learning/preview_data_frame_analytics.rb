@@ -14,7 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
+# Auto generated from build hash f284cc16f4d4b4289bc679aa1529bb504190fe80
+# @see https://github.com/elastic/elasticsearch/tree/main/rest-api-spec
+#
 module Elasticsearch
   module API
     module MachineLearning
@@ -28,11 +31,17 @@ module Elasticsearch
         # @see http://www.elastic.co/guide/en/elasticsearch/reference/current/preview-dfanalytics.html
         #
         def preview_data_frame_analytics(arguments = {})
+          request_opts = { endpoint: arguments[:endpoint] || 'ml.preview_data_frame_analytics' }
+
+          defined_params = [:id].each_with_object({}) do |variable, set_variables|
+            set_variables[variable] = arguments[variable] if arguments.key?(variable)
+          end
+          request_opts[:defined_params] = defined_params unless defined_params.empty?
+
+          arguments = arguments.clone
           headers = arguments.delete(:headers) || {}
 
           body = arguments.delete(:body)
-
-          arguments = arguments.clone
 
           _id = arguments.delete(:id)
 
@@ -42,15 +51,15 @@ module Elasticsearch
                      Elasticsearch::API::HTTP_GET
                    end
 
-          path   = if _id
-                     "_ml/data_frame/analytics/#{Utils.__listify(_id)}/_preview"
-                   else
-                     "_ml/data_frame/analytics/_preview"
-                   end
+          path = if _id
+                   "_ml/data_frame/analytics/#{Utils.__listify(_id)}/_preview"
+                 else
+                   '_ml/data_frame/analytics/_preview'
+                 end
           params = {}
 
           Elasticsearch::API::Response.new(
-            perform_request(method, path, params, body, headers)
+            perform_request(method, path, params, body, headers, request_opts)
           )
         end
       end

@@ -17,15 +17,14 @@
 
 source 'https://rubygems.org'
 
-gem 'elasticsearch-api',        path: File.expand_path('../elasticsearch-api', __FILE__),        require: false
-gem 'elasticsearch',            path: File.expand_path('../elasticsearch', __FILE__),            require: false
+gem 'elasticsearch-api', path: File.expand_path('../elasticsearch-api', __FILE__), require: false
+gem 'elasticsearch',     path: File.expand_path('../elasticsearch', __FILE__), require: false
 
 gem 'ansi'
 gem 'cane'
 gem 'mocha'
 gem 'pry'
 gem 'rake'
-gem 'rubocop'
 gem 'shoulda-context'
 gem 'simplecov'
 gem 'test-unit', '~> 2'
@@ -37,6 +36,7 @@ unless defined?(JRUBY_VERSION) || defined?(Rubinius)
 end
 
 group :development, :test do
-  gem 'byebug'
+  gem 'debug' unless defined?(JRUBY_VERSION)
   gem 'rspec'
+  gem 'rubocop', '>= 1.51' unless defined?(JRUBY_VERSION) && Gem::Version.new(JRUBY_VERSION) <= Gem::Version.new('9.4')
 end
